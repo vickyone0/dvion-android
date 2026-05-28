@@ -64,6 +64,17 @@ jobs:
           cp target/x86_64-linux-android/release/libdvion_jni.so \
              ../android/app/src/main/jniLibs/x86_64/
 
+      # ── Bundle React Native JS ─────────────────────────────
+      - name: Bundle JS
+        run: |
+          mkdir -p android/app/src/main/assets
+          npx react-native bundle \
+            --platform android \
+            --dev false \
+            --entry-file index.js \
+            --bundle-output android/app/src/main/assets/index.android.bundle \
+            --assets-dest android/app/src/main/res
+
       # ── Gradle ─────────────────────────────────────────────
       - uses: gradle/actions/setup-gradle@v3
         with:

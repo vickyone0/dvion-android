@@ -1,6 +1,5 @@
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
-apply plugin: "com.facebook.react"
 
 android {
     namespace "com.dvion"
@@ -14,12 +13,14 @@ android {
         versionName "0.1.0"
 
         ndk {
-            // Architectures built by cargo-ndk
             abiFilters "arm64-v8a", "x86_64"
         }
     }
 
     buildTypes {
+        debug {
+            debuggable true
+        }
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
@@ -28,13 +29,14 @@ android {
 
     sourceSets {
         main {
-            jniLibs.srcDirs = ["src/main/jniLibs"]
+            assets.srcDirs   = ["src/main/assets"]
+            jniLibs.srcDirs  = ["src/main/jniLibs"]
         }
     }
 }
 
 dependencies {
-    implementation("com.facebook.react:react-android")
-    implementation("com.facebook.react:hermes-android")
+    implementation("com.facebook.react:react-android:0.76.5")
+    implementation("com.facebook.react:hermes-android:0.76.5")
     implementation("androidx.appcompat:appcompat:1.7.0")
 }
