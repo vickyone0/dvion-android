@@ -16,7 +16,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: npm
 
       - name: Install JS dependencies
         run: npm install
@@ -51,9 +50,8 @@ jobs:
         run: cargo install cargo-ndk
 
       - name: Build Rust JNI library
-        env:
-          ANDROID_NDK_HOME: ${{ env.ANDROID_SDK_ROOT }}/ndk/27.1.12297006
         run: |
+          export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/27.1.12297006"
           cd rust-bridge
 
           cargo ndk --target aarch64-linux-android --platform 26 -- build --release
