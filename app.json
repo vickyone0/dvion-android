@@ -1,0 +1,20 @@
+{
+  "name": "DvionVpn",
+  "displayName": "dvion VPN",
+  "expo": {
+    "name": "dvion VPN",
+    "slug": "dvion-vpn",
+    "version": "0.1.0",
+    "platforms": ["android"],
+    "android": {
+      "package": "com.dvion",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.INTERNET",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_SPECIAL_USE",
+        "android.permission.RECEIVE_BOOT_COMPLETED"
+      ]
+    }
+  }
+}

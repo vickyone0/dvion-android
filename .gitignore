@@ -1,0 +1,7 @@
+node_modules/
+android/app/src/main/jniLibs/
+rust-bridge/target/
+android/.gradle/
+android/app/build/
+*.keystore
+.env

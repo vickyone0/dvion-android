@@ -1,0 +1,44 @@
+build:
+  name: dvion Android APK
+  steps:
+    # 1 — Check out source
+    - eas/checkout
+
+    # 2 — Install Rust + Android cross-compile targets
+    - run:
+        name: Install Rust toolchain
+        command: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+          echo "$HOME/.cargo/bin" >> $EAS_BUILD_PATH
+          rustup target add aarch64-linux-android x86_64-linux-android
+          cargo install cargo-ndk
+
+    # 3 — Install JS dependencies
+    - eas/install_node_modules
+
+    # 4 — Cross-compile the Rust JNI library
+    - run:
+        name: Build Rust JNI library (arm64 + x86_64)
+        command: |
+          cd rust-bridge
+
+          # arm64-v8a (physical phones)
+          cargo ndk \
+            --target aarch64-linux-android \
+            --platform 26 \
+            -- build --release
+          mkdir -p ../android/app/src/main/jniLibs/arm64-v8a
+          cp target/aarch64-linux-android/release/libdvion_jni.so \
+             ../android/app/src/main/jniLibs/arm64-v8a/
+
+          # x86_64 (emulators)
+          cargo ndk \
+            --target x86_64-linux-android \
+            --platform 26 \
+            -- build --release
+          mkdir -p ../android/app/src/main/jniLibs/x86_64
+          cp target/x86_64-linux-android/release/libdvion_jni.so \
+             ../android/app/src/main/jniLibs/x86_64/
+
+    # 5 — Build the APK with Gradle
+    - eas/run_gradle

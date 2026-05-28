@@ -1,0 +1,23 @@
+[package]
+name    = "dvion_jni"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name       = "dvion_jni"
+crate-type = ["cdylib"]
+
+[dependencies]
+dvion_vpn = { path = "../../dvion_vpn" }
+jni       = "0.21"
+rand      = "0.8"
+tokio     = { version = "1", features = ["full"] }
+anyhow    = "1"
+
+[target.'cfg(target_os = "android")'.dependencies]
+android_logger = "0.14"
+
+[profile.release]
+opt-level = "z"
+lto       = true
+strip     = true
