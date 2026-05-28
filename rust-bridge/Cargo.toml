@@ -8,7 +8,7 @@ name       = "dvion_jni"
 crate-type = ["cdylib"]
 
 [dependencies]
-dvion_vpn = { path = "../../dvion_vpn" }
+dvion_vpn = { path = "../dvion-core", default-features = false }
 jni       = "0.21"
 rand      = "0.8"
 tokio     = { version = "1", features = ["full"] }

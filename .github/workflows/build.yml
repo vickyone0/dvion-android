@@ -35,7 +35,7 @@ jobs:
           sdkmanager \
             "platforms;android-35" \
             "build-tools;35.0.0" \
-            "ndk;27.1.12297006"
+            "ndk;27.3.13750724"
 
       # ── Rust cross-compilation ─────────────────────────────
       - uses: dtolnay/rust-toolchain@stable
@@ -51,7 +51,7 @@ jobs:
 
       - name: Build Rust JNI library
         run: |
-          export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/27.1.12297006"
+          export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/27.3.13750724"
           cd rust-bridge
 
           cargo ndk --target aarch64-linux-android --platform 26 -- build --release
