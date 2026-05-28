@@ -1,5 +1,4 @@
 use anyhow::Result;
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::mpsc;
 
 const MTU: usize = 1420;
@@ -9,6 +8,7 @@ const MTU: usize = 1420;
 pub fn create_tun(
     addr: &str,
 ) -> Result<(mpsc::Receiver<Vec<u8>>, mpsc::Sender<Vec<u8>>, String)> {
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
     use tun2::AbstractDevice;
 
     let mut config = tun2::Configuration::default();
@@ -34,7 +34,6 @@ pub fn create_tun(
             }
         }
     });
-
     tokio::spawn(async move {
         while let Some(pkt) = in_rx.recv().await {
             if writer.write_all(&pkt).await.is_err() { break; }
@@ -44,60 +43,39 @@ pub fn create_tun(
     Ok((out_rx, in_tx, tun_name))
 }
 
-/// Wrap an existing TUN fd from Android's VpnService.
+/// Wrap an Android VpnService TUN fd using blocking I/O threads bridged to async channels.
+/// Blocking threads avoid the need for O_NONBLOCK / AsyncFd entirely.
 pub fn create_tun_from_fd(
     fd: std::os::unix::io::RawFd,
 ) -> Result<(mpsc::Receiver<Vec<u8>>, mpsc::Sender<Vec<u8>>)> {
+    use std::io::{Read, Write};
     use std::os::unix::io::FromRawFd;
 
-    // dup so the original fd stays valid when File takes ownership
-    let dup_fd = unsafe { libc::dup(fd) };
-    let file = unsafe { std::fs::File::from_raw_fd(dup_fd) };
-
-    // Use tokio AsyncFd to drive the raw fd as an async reader/writer
-    use tokio::io::unix::AsyncFd;
-    let afd = std::sync::Arc::new(AsyncFd::new(file)?);
+    let fd_r = unsafe { libc::dup(fd) };
+    let fd_w = unsafe { libc::dup(fd) };
+    let mut reader = unsafe { std::fs::File::from_raw_fd(fd_r) };
+    let mut writer = unsafe { std::fs::File::from_raw_fd(fd_w) };
 
     let (out_tx, out_rx) = mpsc::channel::<Vec<u8>>(256);
     let (in_tx, mut in_rx) = mpsc::channel::<Vec<u8>>(256);
 
-    // reader task
-    let afd_r = std::sync::Arc::clone(&afd);
-    tokio::spawn(async move {
+    // Blocking read thread → async channel
+    std::thread::spawn(move || {
         let mut buf = vec![0u8; MTU + 4];
         loop {
-            let mut guard = match afd_r.readable().await {
-                Ok(g) => g,
-                Err(_) => break,
-            };
-            match guard.try_io(|inner| {
-                use std::io::Read;
-                inner.get_ref().read(&mut buf)
-            }) {
-                Ok(Ok(0)) | Err(_) => break,
-                Ok(Ok(n)) => {
-                    guard.clear_ready();
-                    if out_tx.send(buf[..n].to_vec()).await.is_err() { break; }
+            match reader.read(&mut buf) {
+                Ok(0) | Err(_) => break,
+                Ok(n) => {
+                    if out_tx.blocking_send(buf[..n].to_vec()).is_err() { break; }
                 }
-                Ok(Err(ref e)) if e.kind() == std::io::ErrorKind::WouldBlock => {
-                    guard.clear_ready();
-                }
-                Ok(Err(_)) => break,
             }
         }
     });
 
-    // writer task
-    tokio::spawn(async move {
-        while let Some(pkt) = in_rx.recv().await {
-            let mut guard = match afd.writable().await {
-                Ok(g) => g,
-                Err(_) => break,
-            };
-            let _ = guard.try_io(|inner| {
-                use std::io::Write;
-                inner.get_ref().write_all(&pkt)
-            });
+    // Async channel → blocking write thread
+    std::thread::spawn(move || {
+        while let Some(pkt) = in_rx.blocking_recv() {
+            if writer.write_all(&pkt).is_err() { break; }
         }
     });
 

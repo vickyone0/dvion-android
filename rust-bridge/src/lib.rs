@@ -70,7 +70,7 @@ pub extern "system" fn Java_com_dvion_DvionJni_runClient(
 
 #[no_mangle]
 pub extern "system" fn Java_com_dvion_DvionJni_generateKey<'local>(
-    mut env: JNIEnv<'local>,
+    env: JNIEnv<'local>,
     _class:  JClass,
 ) -> jni::objects::JString<'local> {
     use rand::Rng;
