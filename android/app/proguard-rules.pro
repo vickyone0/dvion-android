@@ -1,0 +1,3 @@
+-keep class com.facebook.react.** { *; }
+-keep class com.dvion.** { *; }
+-dontwarn com.facebook.react.**
