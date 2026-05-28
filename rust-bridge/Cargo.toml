@@ -10,6 +10,7 @@ crate-type = ["cdylib"]
 [dependencies]
 dvion_vpn = { path = "../dvion-core", default-features = false }
 jni       = "0.21"
+libc      = "0.2"
 rand      = "0.8"
 tokio     = { version = "1", features = ["full"] }
 anyhow    = "1"

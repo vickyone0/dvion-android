@@ -91,4 +91,3 @@ fn jstr(env: &mut JNIEnv, s: JString) -> String {
     env.get_string(&s).map(|cs| cs.into()).unwrap_or_default()
 }
 
-extern crate libc;
