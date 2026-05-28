@@ -89,7 +89,7 @@ jobs:
       - name: Build debug APK
         run: |
           cd android
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon --stacktrace
 
       # ── Upload artifact ────────────────────────────────────
       - name: Upload APK
