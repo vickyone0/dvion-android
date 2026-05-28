@@ -5,15 +5,15 @@
   },
   "build": {
     "production": {
+      "config": "build.yml",
       "android": {
-        "buildType": "apk",
-        "config": "build.yml"
+        "buildType": "apk"
       }
     },
     "preview": {
+      "config": "build.yml",
       "android": {
         "buildType": "apk",
-        "config": "build.yml",
         "distribution": "internal"
       }
     }
