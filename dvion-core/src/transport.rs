@@ -371,7 +371,7 @@ async fn handle_connection(conn: Connection, state: Arc<ServerState>, keys_file:
 
 // ── Public entry points ───────────────────────────────────────────────────────
 
-#[cfg(feature = "cli")]
+#[cfg(not(target_os = "android"))]
 pub async fn run_server(
     listen_addr: &str,
     tun_ip: &str,
@@ -455,7 +455,7 @@ where
     Ok(())
 }
 
-#[cfg(feature = "cli")]
+#[cfg(not(target_os = "android"))]
 pub async fn run_client(
     server_addr: &str,
     auth_key: &str,

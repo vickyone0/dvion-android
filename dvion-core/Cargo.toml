@@ -1,37 +1,31 @@
 [package]
-name = "dvion_vpn"
+name    = "dvion_vpn"
 version = "0.1.0"
 edition = "2021"
 
-[[bin]]
-name = "dvion"
-path = "src/main.rs"
-
 [lib]
-name = "dvion_vpn"
-path = "src/lib.rs"
+name       = "dvion_vpn"
+path       = "src/lib.rs"
 crate-type = ["rlib"]
 
 [dependencies]
-ml-kem = { version = "0.3", features = ["getrandom"] }
-tokio = { version = "1", features = ["full"] }
-rustls = { version = "0.23", default-features = false, features = ["ring", "tls12"] }
-quinn = { version = "0.11", default-features = false, features = ["rustls", "ring", "runtime-tokio"] }
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-hkdf = "0.12"
-sha2 = "0.10"
-x25519-dalek = "2"
+ml-kem           = { version = "0.3", features = ["getrandom"] }
+tokio            = { version = "1",   features = ["full"] }
+rustls           = { version = "0.23", default-features = false, features = ["ring", "tls12"] }
+quinn            = { version = "0.11", default-features = false, features = ["rustls", "ring", "runtime-tokio"] }
+tracing          = "0.1"
+hkdf             = "0.12"
+sha2             = "0.10"
+x25519-dalek     = "2"
 chacha20poly1305 = "0.10"
-rcgen = "0.13"
-clap = { version = "4", features = ["derive"], optional = true }
-tun2 = { version = "3", features = ["async"], optional = true }
-libc = "0.2"
+rcgen            = "0.13"
+libc             = "0.2"
+anyhow           = "1"
+rand             = "0.8"
+subtle           = "2"
 
-[features]
-default = ["cli"]
-cli = ["tun2", "clap"]
-anyhow = "1"
-rand = "0.8"
-subtle = "2"
-
+# Desktop/server only (not compiled when targeting Android)
+[target.'cfg(not(target_os = "android"))'.dependencies]
+tun2             = { version = "3", features = ["async"] }
+clap             = { version = "4", features = ["derive"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }

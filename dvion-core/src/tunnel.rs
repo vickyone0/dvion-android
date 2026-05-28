@@ -5,7 +5,7 @@ use tokio::sync::mpsc;
 const MTU: usize = 1420;
 
 /// Spin up a TUN device (desktop/server only).
-#[cfg(feature = "cli")]
+#[cfg(not(target_os = "android"))]
 pub fn create_tun(
     addr: &str,
 ) -> Result<(mpsc::Receiver<Vec<u8>>, mpsc::Sender<Vec<u8>>, String)> {
